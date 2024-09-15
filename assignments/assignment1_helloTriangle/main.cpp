@@ -24,7 +24,11 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "{\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
-
+	float vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
+	};
 
 int main() {
 	printf("Initializing...");
@@ -42,7 +46,13 @@ int main() {
 		printf("GLAD Failed to load GL headers");
 		return 1;
 	}
-	//shaders
+//shaders
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	
 	//vertex shader
 	unsigned int vertexShader;
@@ -87,25 +97,13 @@ int main() {
 	//delete the shaders as theyre already linked in
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-	//Initialization goes here!
-	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
-	};
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
 	//copy vertex arrays
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	//set vertex pointers
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
 
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -121,4 +119,8 @@ int main() {
 		glfwSwapBuffers(window);
 	}
 	printf("Shutting down...");
+
+
+
 }
+	
