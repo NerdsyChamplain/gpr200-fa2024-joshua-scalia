@@ -1,4 +1,4 @@
-#include <C:\Users\Josh\Documents\GitHub\gpr200-fa2024-joshua-scalia\core\josh\shader.h>
+#include "shader.h"
 
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)

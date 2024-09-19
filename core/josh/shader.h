@@ -1,7 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <C:\Users\Josh\Documents\GitHub\gpr200-fa2024-joshua-scalia\core/ew/external/glad.h>
+#include "../ew/external/glad.h"
 
 #include <string>
 #include <fstream>

@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <iostream>
-#include <C:\Users\Josh\Documents\GitHub\gpr200-fa2024-joshua-scalia\core\josh\shader.h>
+#include "josh\shader.h"
 
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
@@ -45,7 +45,7 @@ int main() {
 		printf("GLAD Failed to load GL headers");
 		return 1;
 	}
-	Shader ourShader("C:/Users/Josh/Documents/GitHub/gpr200-fa2024-joshua-scalia/assignments/assignment1_helloTriangle/assets/vertexShader.vert", "C:/Users/Josh/Documents/GitHub/gpr200-fa2024-joshua-scalia/assignments/assignment1_helloTriangle/assets/fragmentShader.frag");
+	Shader ourShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 
 //shaders
 	unsigned int VBO, VAO;
