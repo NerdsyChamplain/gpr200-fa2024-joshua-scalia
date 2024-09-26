@@ -24,12 +24,10 @@ float blue = 1.0f;
 const float NONTARGCOLORS = 0.0f;
 float vertices[] = {
 	// positions                           // colors
-	  0.5f,  0.5f, 0.0f,  red, NONTARGCOLORS, NONTARGCOLORS,   // bottom right
-	0.5f, -0.5f, 0.0f,  NONTARGCOLORS, green, NONTARGCOLORS,   // bottom left
-	 -0.5f,  0.5f, 0.0f,  NONTARGCOLORS, NONTARGCOLORS, blue,    // top 
-	 0.5f, -0.5f, 0.0f,  red, NONTARGCOLORS, NONTARGCOLORS, // bottom right
-	-0.5f, -0.5f, 0.0f,  NONTARGCOLORS, green, NONTARGCOLORS, // bottom left
-	-0.5f,  0.5f, 0.0f ,  NONTARGCOLORS, NONTARGCOLORS, blue,  // top left
+	  0.5f,  0.5f, 0.0f,  red, NONTARGCOLORS, NONTARGCOLORS,   // top right
+	0.5f, -0.5f, 0.0f,  NONTARGCOLORS, green, NONTARGCOLORS,   // bottom right
+	 -0.5f,  -0.5f, 0.0f,  NONTARGCOLORS, NONTARGCOLORS, blue,    // bottom left
+	 -0.5f,  0.5f, 0.0f,  red, green, blue,    //top left
 };
 unsigned int indices[] = {  // note that we start from 0!
 	0, 1, 3,   // first triangle
@@ -67,7 +65,7 @@ int main() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -102,6 +100,7 @@ int main() {
 		glEnableVertexAttribArray(1);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glBindVertexArray(0);
 		glfwSwapBuffers(window);
 	}
 	printf("Shutting down...");
