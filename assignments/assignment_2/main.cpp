@@ -9,6 +9,13 @@
 #include "josh\shader.h"
 #include "../core/ew/external/stb_image.h"
 
+//COPYRIGHT DISCLAIMER:
+//I am not the owner of any images in the assets folder aside from slimebrenner.png
+//The respective owners are as follows:
+//container.jpg: learnopengl.com
+//inscrypBack.png: Daniel Mullins
+//sinclair.png: Project Moon
+
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
@@ -23,6 +30,7 @@ float red = 1.0f;
 float green = 1.0f;
 float blue = 1.0f;
 const float NONTARGCOLORS = 0.0f;
+float seconds = 0.0f;
 float vertices[] = {
 	// positions                  // colors           // texture coords
 			 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
@@ -51,7 +59,7 @@ int main() {
 		return 1;
 	}
 	Shader ourShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
-
+	Shader backShader("assets/backVertShader.vert", "assets/backFragShader.frag");
 //shaders
 	unsigned int VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
@@ -74,6 +82,8 @@ int main() {
 	//texture attribute
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
+	GLint myUniformLocation = glGetUniformLocation(ourShader.ID, "time");
+	glUniform1f(myUniformLocation, seconds);
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glBindVertexArray(0);
 stbi_set_flip_vertically_on_load(true);
@@ -105,10 +115,10 @@ stbi_set_flip_vertically_on_load(true);
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load and generate the texture
-	data = stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
+	data = stbi_load("assets/inscrypBack.png", &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -119,11 +129,37 @@ stbi_set_flip_vertically_on_load(true);
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
+	unsigned int texture3;
+	glGenTextures(1, &texture3);
+	glBindTexture(GL_TEXTURE_2D, texture3);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	data = stbi_load("assets/sinclair.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
 	ourShader.use(); // don't forget to activate the shader before setting uniforms!  
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture"), 0); // set it manually
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
+	glUniform1i(glGetUniformLocation(ourShader.ID, "texture3"), 2);
+	backShader.use();
+	glUniform1i(glGetUniformLocation(backShader.ID, "texture"), 0); // set it manually
+	glUniform1i(glGetUniformLocation(backShader.ID, "texture2"), 1);
+	glUniform1i(glGetUniformLocation(backShader.ID, "texture3"), 2);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -133,7 +169,7 @@ stbi_set_flip_vertically_on_load(true);
 		glClear(GL_COLOR_BUFFER_BIT);
 		//Drawing happens here!
 		// update shader uniform
-		
+		seconds = glfwGetTime();
 		/*glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);
@@ -151,11 +187,17 @@ stbi_set_flip_vertically_on_load(true);
 		glEnableVertexAttribArray(1);
 		glBindVertexArray(VAO);*/
 		//setup textures
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		backShader.use();
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, texture3);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		ourShader.use();
+		glUniform1f(myUniformLocation, seconds);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
