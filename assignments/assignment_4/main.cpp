@@ -21,6 +21,7 @@
 
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
+//1080 x 720
 
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -34,7 +35,7 @@ float yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 re
 float pitch = 0.0f;
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
-float fov = 45.0f;
+float fov = 60.0f;
 
 float posXBotRight = 0.5f;
 float posXBotLeft = -0.5f;
@@ -103,7 +104,41 @@ glm::vec3 cubePositions[] = {
 	glm::vec3(1.3f, -2.0f, -2.5f),
 	glm::vec3(1.5f,  2.0f, -2.5f),
 	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
+	glm::vec3(-1.3f,  1.0f, -1.5f),
+	//point of difference
+	glm::vec3(1.0f,  -1.0f,  5.0f),
+	glm::vec3(2.0f,  -5.0f, 15.0f),
+	glm::vec3(1.5f, 2.2f, -2.5f),
+	glm::vec3(-3.8f, 2.0f, 12.3f),
+	glm::vec3(-2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  6.0f, 7.5f),
+	glm::vec3(4.3f, -2.0f, -2.5f),
+	glm::vec3(11.5f,  -2.0f, -2.5f),
+	glm::vec3(-1.5f,  -0.2f, 1.5f),
+	glm::vec3(-3.0f,  1.0f, -1.5f)
+};
+
+float randSizes[] = {
+	ew::RandomRange(0.5f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f),
+	ew::RandomRange(0.1f, 2.0f)
 };
 
 //camera position stuff
@@ -203,7 +238,7 @@ stbi_set_flip_vertically_on_load(true);
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+	projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 	glm::mat4 view = glm::mat4(1.0f);
 	// note that we're translating the scene in the reverse direction of where we want to move
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -219,7 +254,9 @@ stbi_set_flip_vertically_on_load(true);
 	float camX = sin(glfwGetTime()) * radius;
 	float camZ = cos(glfwGetTime()) * radius;
 	glm::vec3 direction;
-
+	float rotationMult1 = ew::RandomRange(0.0f, 1.0f);
+	float rotationMult2 = ew::RandomRange(0.0f, 1.0f);
+	float rotationMult3 = ew::RandomRange(0.0f, 1.0f);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	//Render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -245,7 +282,7 @@ stbi_set_flip_vertically_on_load(true);
 		backShader.use();
 		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(0.005f), glm::vec3(0.5f, 1.0f, 0.0f));
-		projection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 		//camX = sin(glfwGetTime()) * radius;
 		//camZ = cos(glfwGetTime()) * radius;
@@ -256,14 +293,17 @@ stbi_set_flip_vertically_on_load(true);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 10; i++)
+		
+		for (unsigned int i = 0; i < 20; i++)
 		{
+			glm::mat4 randScaler = glm::scale(glm::mat4(1.0f), glm::vec3(randSizes[i], randSizes[i], 1.0f));
 			// calculate the model matrix for each object and pass it to shader before drawing
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
+			model = glm::translate(model * randScaler, cubePositions[i]); //* glm::vec3(2.0f, 2.0f, 0.0f));
 			float angle = 20.0f * i;
-			angle = glfwGetTime() * 25.0f;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			
+			angle = glfwGetTime() * 25.0f * randSizes[i];
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(rotationMult1, rotationMult2, rotationMult3));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -287,7 +327,11 @@ stbi_set_flip_vertically_on_load(true);
 
 void processInput(GLFWwindow* window)
 {
-	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
+	float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		cameraSpeed *= 2.0f;
+	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPos += cameraSpeed * cameraFront;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -296,6 +340,14 @@ void processInput(GLFWwindow* window)
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		cameraPos -= cameraSpeed * cameraUp;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		cameraPos += cameraSpeed * cameraUp;
+	}
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -335,6 +387,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	fov -= (float)yoffset;
 	if (fov < 1.0f)
 		fov = 1.0f;
-	if (fov > 45.0f)
-		fov = 45.0f;
+	if (fov > 120.0f)
+		fov = 120.0f;
 }
